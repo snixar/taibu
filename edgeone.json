@@ -1,0 +1,9 @@
+{
+  "framework": "none",
+  "buildCommand": "pnpm --filter taibu-core build",
+  "installCommand": "pnpm install",
+  "outputDirectory": "",
+  "cloudFunctions": {
+    "runtime": "nodejs20.x"
+  }
+}
