@@ -1,9 +1,8 @@
 {
   "$schema": "https://pages.edgeone.ai/schema.json",
-  "framework": "none",
-  "buildCommand": "pnpm --filter taibu-core build && mkdir -p .next && echo '{\"version\":1,\"config\":{\"output\":\"standalone\"},\"appDir\":true,\"files\":[],\"ignore\":[]}' > .next/required-server-files.json",
+  "buildCommand": "pnpm build",
   "installCommand": "pnpm install",
-  "outputDirectory": ".",
+  "outputDirectory": ".next/standalone",
   "cloudFunctions": {
     "runtime": "nodejs20.x"
   }
