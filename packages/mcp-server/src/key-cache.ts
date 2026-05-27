@@ -1,7 +1,8 @@
 /**
  * MCP Key 内存验证缓存
  *
- * TTL 5 分钟，避免每次请求都查 DB
+ * TTL 1 分钟，避免每次请求都查 DB。
+ * 使用惰性淘汰（lazy eviction），兼容 serverless 环境（无 setInterval）。
  */
 
 export interface CachedKeyInfo {
@@ -10,9 +11,17 @@ export interface CachedKeyInfo {
   cachedAt: number;
 }
 
-const KEY_CACHE_TTL = 60 * 1000; // 60 秒（短 TTL 以便封禁/重置快速生效）
+const KEY_CACHE_TTL = 60 * 1000; // 60 秒
 const MAX_CACHE_SIZE = 10_000;
 const cache = new Map<string, CachedKeyInfo>();
+
+function evictExpiredEntries(now: number) {
+  for (const [key, entry] of cache) {
+    if (now - entry.cachedAt > KEY_CACHE_TTL) {
+      cache.delete(key);
+    }
+  }
+}
 
 export function getCachedKey(keyCode: string): CachedKeyInfo | null {
   const entry = cache.get(keyCode);
@@ -27,25 +36,20 @@ export function getCachedKey(keyCode: string): CachedKeyInfo | null {
 }
 
 export function setCachedKey(keyCode: string, info: Omit<CachedKeyInfo, 'cachedAt'>): void {
+  const now = Date.now();
+
   if (cache.size >= MAX_CACHE_SIZE && !cache.has(keyCode)) {
-    // 淘汰最旧的条目
-    const oldest = cache.keys().next().value;
-    if (oldest !== undefined) cache.delete(oldest);
+    evictExpiredEntries(now);
+    // 如果仍然满了，淘汰最旧条目
+    if (cache.size >= MAX_CACHE_SIZE) {
+      const oldest = cache.keys().next().value;
+      if (oldest !== undefined) cache.delete(oldest);
+    }
   }
-  cache.set(keyCode, { ...info, cachedAt: Date.now() });
+
+  cache.set(keyCode, { ...info, cachedAt: now });
 }
 
 export function invalidateCachedKey(keyCode: string): void {
   cache.delete(keyCode);
 }
-
-// 定期清理过期缓存
-const cleanupTimer = setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of cache) {
-    if (now - entry.cachedAt > KEY_CACHE_TTL) {
-      cache.delete(key);
-    }
-  }
-}, 60 * 1000);
-cleanupTimer.unref?.();

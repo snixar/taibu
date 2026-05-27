@@ -191,6 +191,12 @@ function cleanupExpiredRecords() {
       rateLimitMap.delete(key);
     }
   }
+  // 同步清理 OAuth 限流记录
+  for (const [key, record] of oauthRateLimitMap) {
+    if (now > record.resetTime) {
+      oauthRateLimitMap.delete(key);
+    }
+  }
 }
 
 export function rateLimitMiddleware(req: Request, res: Response, next: NextFunction) {
@@ -260,6 +266,9 @@ const OAUTH_RATE_LIMIT = 10; // 10 次/分钟（per IP per path）
 const OAUTH_RATE_WINDOW = 60 * 1000;
 
 export function oauthRateLimitMiddleware(req: Request, res: Response, next: NextFunction) {
+  // 惰性清理过期记录
+  cleanupExpiredRecords();
+
   const ip = req.ip || req.socket.remoteAddress || 'unknown';
   const key = `oauth:${ip}:${req.path}`;
   const now = Date.now();
@@ -279,16 +288,6 @@ export function oauthRateLimitMiddleware(req: Request, res: Response, next: Next
   next();
 }
 
-// 复用主限流的清理周期，顺带清理 OAuth 限流记录
-const oauthCleanupTimer = setInterval(() => {
-  const now = Date.now();
-  for (const [key, record] of oauthRateLimitMap) {
-    if (now > record.resetTime) {
-      oauthRateLimitMap.delete(key);
-    }
-  }
-}, CLEANUP_INTERVAL);
-oauthCleanupTimer.unref?.();
 
 // ─── 双模式认证中间件（OAuth JWT 优先，API Key fallback）───
 
