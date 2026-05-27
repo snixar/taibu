@@ -1,9 +1,6 @@
-import { createRequire } from 'node:module';
-
 import type { AstrologyAspect, AstrologyAspectType, AstrologyChartSnapshot, AstrologyDegreeInfo, AstrologyFactor, AstrologyFactorCategory, AstrologyHouse, AstrologyInput, AstrologyOutput, AstrologySignInfo, AstrologyZodiacCusp } from './types.js';
 
-const require = createRequire(import.meta.url);
-const horoscopePackage = require('circular-natal-horoscope-js') as typeof import('circular-natal-horoscope-js');
+import horoscopePackage from 'circular-natal-horoscope-js';
 const { Origin, Horoscope } = horoscopePackage;
 
 export type {

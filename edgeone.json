@@ -4,7 +4,6 @@
   "installCommand": "pnpm install",
   "outputDirectory": ".next/standalone",
   "cloudFunctions": {
-    "runtime": "nodejs20.x",
-    "external": ["circular-natal-horoscope-js"]
+    "runtime": "nodejs20.x"
   }
 }
