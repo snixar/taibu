@@ -24,6 +24,7 @@
     "@capacitor/cli": "^8.0.1",
     "@capacitor/core": "^8.0.1",
     "@capacitor/ios": "^8.0.1",
+    "circular-natal-horoscope-js": "^1.1.0",
     "@lobehub/icons": "^4.0.2",
     "@modelcontextprotocol/sdk": "1.25.3",
     "express": "^4.21.0",
