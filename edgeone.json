@@ -1,8 +1,9 @@
 {
+  "$schema": "https://pages.edgeone.ai/schema.json",
   "framework": "none",
   "buildCommand": "pnpm --filter taibu-core build",
   "installCommand": "pnpm install",
-  "outputDirectory": "",
+  "outputDirectory": ".",
   "cloudFunctions": {
     "runtime": "nodejs20.x"
   }
